@@ -5,7 +5,9 @@ I'd appreciate it if you find some bugs in this code or get the final result bec
 
 ## Environments:    
 
-`<Python == 3.6.8, Pytorch == 1.1.0, CUDA == 9.0.176, cuDNN == 7.3.0, GPU == GTX 1080 Ti>` 
+`   
+Python == 3.6.8, Pytorch == 1.1.0, CUDA == 9.0.176, cuDNN == 7.3.0, GPU == GTX 1080 Ti   
+` 
 
 ## Datasets:   
 ImageNet   
