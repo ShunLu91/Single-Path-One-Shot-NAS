@@ -77,7 +77,7 @@ def main():
         device = torch.device("cpu")
     model = model.to(device)
 
-    print('Start train!')
+    print('Start training!')
     for epoch in range(args.epochs):
         train(args, epoch, train_data, device, model, criterion, optimizer, scheduler)
         if (epoch + 1) % args.val_interval == 0:
