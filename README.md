@@ -5,7 +5,7 @@ However, this repo only contains 'Block Search' and it's very time consuming to 
 Yet, there are still some differences with the [official version](https://github.com/megvii-model/ShuffleNet-Series/tree/master/OneShot) such as data preprocessing and some hyper parameters. Nevertheless, I'd appreciate it if you find some bugs in this repo or get the final result because I won't have so much time to check this for the starting of school. Welcome to pull requests here.        
                 
 ## Environments    
-```Python
+```
 Python == 3.6.8, Pytorch == 1.1.0, CUDA == 9.0.176, cuDNN == 7.3.0, GPU == Single GTX 1080Ti 
 ```
 
@@ -13,7 +13,7 @@ Python == 3.6.8, Pytorch == 1.1.0, CUDA == 9.0.176, cuDNN == 7.3.0, GPU == Singl
 SPOS directly can train on ImageNet.ImageNet needs to be manually downloaded and [here](https://github.com/pytorch/examples/tree/master/imagenet) are some instructions.   
          
 ## Usage
-```Python
+```
 python train.py --train_dir YOUR_TRAINDATASET_PATH --val_dir YOUR_VALDATASET_PATH
 ```
 
