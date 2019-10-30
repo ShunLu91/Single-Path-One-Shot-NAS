@@ -25,6 +25,9 @@ python train.py --train_dir YOUR_TRAINDATASET_PATH --val_dir YOUR_VALDATASET_PAT
 - [x] Train on CIFAR-10
 - [ ] Channel Search
 - [ ] Evolutionary Algorithm
+
+## Reference
+[1][Differentiable architecture search for convolutional and recurrent networks](https://github.com/quark0/darts)
              
 ## Citation
 ```
