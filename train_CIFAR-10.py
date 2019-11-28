@@ -13,6 +13,7 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 def get_args():
     parser = argparse.ArgumentParser("Single_Path_One_Shot")
+    parser.add_argument('--search_name', type=str, default='single_path', help='search model number')
     parser.add_argument('--train_dir', type=str, default='/home/lushun/Documents/Dataset/ImageNet/train',
                         help='path to training dataset')
     parser.add_argument('--val_dir', type=str, default='/home/lushun/Documents/Dataset/ImageNet/val',
@@ -97,11 +98,12 @@ def validate(args, epoch, val_data, device, model):
             top1.update(prec1.item(), n)
             top5.update(prec5.item() , n)
         print('[Val_Accuracy] top1:%.5f%%, top5:%.5f%% ' % (top1.avg, top5.avg))
-    # save model
-    if (epoch+1) % args.val_interval == 0:
-        save_dir = './snapshots/epoch_' + str(epoch+1) + '_acc_' + str('%.5f' % top1) + '-weights.pt'
-        torch.save(model.state_dict(), save_dir)
-        print('Successfully save the model.')
+        utils.save_checkpoint({'state_dict': model.state_dict(), }, epoch+1, tag=args.search_name)
+#     # save model
+#     if (epoch+1) % args.val_interval == 0:
+#         save_dir = './snapshots/epoch_' + str(epoch+1) + '_acc_' + str('%.5f' % top1) + '-weights.pt'
+#         torch.save(model.state_dict(), save_dir)
+#         print('Successfully save the model.')
 
 
 if __name__ == '__main__':
