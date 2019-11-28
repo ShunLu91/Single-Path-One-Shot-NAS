@@ -27,3 +27,11 @@ def accuracy(output, label, topk=(1,)):
     correct_k = correct[:k].view(-1).float().sum(0)
     res.append(correct_k.mul_(100.0/batch_size))
   return res
+
+
+def save_checkpoint(state, iters, tag=''):
+    if not os.path.exists("./snapshots"):
+        os.makedirs("./snapshots")
+    filename = os.path.join("./snapshots/{}checkpoint-{:06}.pth.tar".format(tag, iters))
+    torch.save(state, filename)
+    
