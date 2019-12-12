@@ -4,7 +4,7 @@ Sampling](https://arxiv.org/abs/1904.00420))  by Zichao Guo, and et. al.
 ![SPOS](https://github.com/ShunLu91/Single-Path-One-Shot-NAS/blob/master/img/SPOS.jpg)
 
 This repo only contains 'Block Search' for reference. It's very time consuming to train this network on ImageNet, which
-makes it impossible for me to finish the experiment under existing resources.As a result, this repo mainly focuses on 
+makes it impossible for me to finish the experiment under existing resources. As a result, this repo mainly focuses on 
 CIFAR-10 and greatly thanks to Zichao Guo for his advice on some details.
 Yet, there are still some differences with the [official version](https://github.com/megvii-model/SinglePathOneShot) 
 such as data preprocessing and some hyper parameters.
@@ -18,9 +18,9 @@ Python == 3.6.8, Pytorch == 1.1.0, CUDA == 9.0.176, cuDNN == 7.3.0, GPU == Singl
 ```
 
 ## Dataset   
-SPOS can directly train on the ImageNet.ImageNet needs to be manually downloaded and 
-[here](https://github.com/pytorch/examples/tree/master/imagenet) are some instructions.CIFAR-10 can be downloaded 
-automatically with this code.  
+SPOS can directly train on CIFAR-10 and ImageNet.
+CIFAR-10 can be downloaded automatically with this code. ImageNet needs to be manually downloaded and 
+[here](https://github.com/pytorch/examples/tree/master/imagenet) are some instructions. 
          
 ## Usage
 ```
