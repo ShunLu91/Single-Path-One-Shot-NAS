@@ -1,6 +1,5 @@
 import torch
 import torchvision.transforms as transforms
-import numpy as np
 import torch.nn as nn
 import torchvision.datasets as data_sets
 import argparse
@@ -8,7 +7,6 @@ import utils
 from torchsummary import summary
 from model import Network
 from tqdm import tqdm
-import os
 
 
 def get_args():
