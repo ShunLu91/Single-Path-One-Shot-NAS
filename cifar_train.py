@@ -8,21 +8,19 @@ from model import Network
 from torchsummary import summary
 from tqdm import tqdm
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 
 def get_args():
     parser = argparse.ArgumentParser("Single_Path_One_Shot")
-    parser.add_argument('--search_name', type=str, default='single_path', help='search model number')
+    parser.add_argument('--exp_name', type=str, default='spos_cifar', required=True, help='experiment name')
     parser.add_argument('--data_dir', type=str, default='/home/work/dataset/cifar',
                         help='path to training dataset')
-    parser.add_argument('--train_batch', type=int, default=128, help='batch size')
-    parser.add_argument('--val_batch', type=int, default=2048, help='batch size')
-    parser.add_argument('--epochs', type=int, default=1000, help='batch size')
+    parser.add_argument('--batch_size', type=int, default=96, help='batch size')
+    parser.add_argument('--epochs', type=int, default=600, help='batch size')
     parser.add_argument('--learning_rate', type=float, default=0.1, help='initial learning rate')
     parser.add_argument('--momentum', type=float, default=0.9, help='momentum')
     parser.add_argument('--weight-decay', type=float, default=4e-5, help='weight decay')
-    parser.add_argument('--train_interval', type=int, default=200, help='print frequency')	
+    parser.add_argument('--train_interval', type=int, default=1000, help='print frequency')
     parser.add_argument('--val_interval', type=int, default=5, help='save frequency')
     args = parser.parse_args()
     return args
@@ -36,11 +34,11 @@ def main():
          transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))])
     trainset = torchvision.datasets.CIFAR10(root=args.data_dir, train=True,
                                             download=True, transform=transform)
-    train_loader = torch.utils.data.DataLoader(trainset, batch_size=args.train_batch,
+    train_loader = torch.utils.data.DataLoader(trainset, batch_size=args.batch_size,
                                               shuffle=True, pin_memory=True, num_workers=4)
     valset = torchvision.datasets.CIFAR10(root=args.data_dir, train=False,
                                            download=True, transform=transform)
-    val_loader = torch.utils.data.DataLoader(valset, batch_size=args.val_batch,
+    val_loader = torch.utils.data.DataLoader(valset, batch_size=args.batch_size,
                                              shuffle=False, pin_memory=True, num_workers=4)
 
     model = Network(classes=10, gap_size=1)
@@ -60,11 +58,10 @@ def main():
     summary(model, (3, 32, 32))
     print('Start training!')
     for epoch in range(args.epochs):
-        lr = scheduler.get_lr()
         print('epoch:%d, lr:%f' % (epoch, scheduler.get_lr()[0]))
         train(args, epoch, train_loader, device, model, criterion, optimizer)
         scheduler.step()
-        # if (epoch + 1) % args.val_interval == 0:
+    if (epoch + 1) % args.val_interval == 0:
         validate(args, epoch, val_loader, device, model)
 
 
@@ -96,7 +93,7 @@ def validate(args, epoch, val_data, device, model):
             top1.update(prec1.item(), n)
             top5.update(prec5.item() , n)
         print('[Val_Accuracy] top1:%.5f%%, top5:%.5f%% ' % (top1.avg, top5.avg))
-        utils.save_checkpoint({'state_dict': model.state_dict(), }, epoch+1, tag=args.search_name)
+        utils.save_checkpoint({'state_dict': model.state_dict(), }, epoch+1, tag=args.exp_name)
 
 
 if __name__ == '__main__':
