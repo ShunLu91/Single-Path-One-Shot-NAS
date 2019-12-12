@@ -59,8 +59,8 @@ def main():
         print('epoch:%d, lr:%f' % (epoch, scheduler.get_lr()[0]))
         train(args, epoch, train_loader, device, model, criterion, optimizer)
         scheduler.step()
-    if (epoch + 1) % args.val_interval == 0:
-        validate(args, epoch, val_loader, device, model)
+        if (epoch + 1) % args.val_interval == 0:
+            validate(args, epoch, val_loader, device, model)
 
 
 def train(args, epoch, train_data, device, model, criterion, optimizer):
@@ -82,7 +82,7 @@ def validate(args, epoch, val_data, device, model):
     top1 = utils.AvgrageMeter()
     top5 = utils.AvgrageMeter()
     with torch.no_grad():
-        for step, (inputs, targets) in enumerate(tqdm(val_data)):
+        for step, (inputs, targets) in enumerate(val_data):
             inputs = inputs.to(device)
             targets = targets.to(device)
             outputs = model(inputs)
