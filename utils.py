@@ -1,5 +1,6 @@
 import os
 import torch
+import torchvision.transforms as transforms
 
 
 class AvgrageMeter(object):
@@ -38,3 +39,27 @@ def save_checkpoint(state, iters, tag=''):
         os.makedirs("./snapshots")
     filename = os.path.join("./snapshots/{}checkpoint-{:06}.pth.tar".format(tag, iters))
     torch.save(state, filename)
+
+
+def _data_transforms_cifar10(args):
+    """copy from darts
+    https://github.com/quark0/darts/blob/master/cnn/utils.py
+    """
+
+    CIFAR_MEAN = [0.49139968, 0.48215827, 0.44653124]
+    CIFAR_STD = [0.24703233, 0.24348505, 0.26158768]
+
+    train_transform = transforms.Compose([
+        transforms.RandomCrop(32, padding=4),
+        transforms.RandomHorizontalFlip(),
+        transforms.ToTensor(),
+        transforms.Normalize(CIFAR_MEAN, CIFAR_STD),
+    ])
+    # if args.cutout:
+    #   train_transform.transforms.append(Cutout(args.cutout_length))
+
+    valid_transform = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize(CIFAR_MEAN, CIFAR_STD),
+    ])
+    return train_transform, valid_transform

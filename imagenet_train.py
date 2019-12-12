@@ -9,14 +9,13 @@ from torchsummary import summary
 from model import Network
 from tqdm import tqdm
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+
 
 def get_args():
     parser = argparse.ArgumentParser("Single_Path_One_Shot")
-    parser.add_argument('--train_dir', type=str, default='/home/jp/data/lushun/dataset/ImageNet/train',
-                        help='path to training dataset')
-    parser.add_argument('--val_dir', type=str, default='/home/jp/data/lushun/dataset/ImageNet/val',
-                        help='path to validation dataset')
+    parser.add_argument('--exp_name', type=str, default='spos_cifar', required=True, help='experiment name')
+    parser.add_argument('--train_dir', type=str, default='', help='path to training dataset')
+    parser.add_argument('--val_dir', type=str, default='', help='path to validation dataset')
     parser.add_argument('--train_batch', type=int, default=64, help='batch size')
     parser.add_argument('--val_batch', type=int, default=2048, help='batch size')
     parser.add_argument('--epochs', type=int, default=120, help='batch size')
@@ -80,6 +79,7 @@ def main():
         scheduler.step()
         if (epoch + 1) % args.val_interval == 0:
             validate(args, epoch, val_data, device, model)
+            utils.save_checkpoint({'state_dict': model.state_dict(), }, epoch + 1, tag=args.exp_name)
 
 
 def train(args, epoch, train_data, device, model, criterion, optimizer):
@@ -115,11 +115,6 @@ def validate(args, epoch, val_data, device, model):
             top1.update(prec1.item(), n)
             top5.update(prec5.item(), n)
         print('[Val_Accuracy] top1:%.5f%%, top5:%.5f%% ' % (top1.avg, top5.avg))
-    # save model
-    if (epoch+1) % args.val_interval == 0:
-        save_dir = './snapshots/epoch_' + str(epoch+1) + '_acc_' + str('%.5f' % top1.avg) + '-weights.pt'
-        torch.save(model.state_dict(), save_dir)
-        print('Successfully save the model.')
 
 
 if __name__ == '__main__':
