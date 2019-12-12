@@ -43,7 +43,7 @@ class Network(nn.Module):
                     self.choice_block1 = nn.ModuleList([self.choice_3_1, self.choice_5_1, self.choice_7_1, self.choice_x_1])
                     self.choice_block.append(self.choice_block1)
         self.conv2 = nn.Sequential(
-            nn.Conv2d(640, 1024, kernel_size=1, stride=2, padding=1, bias=False),
+            nn.Conv2d(640, 1024, kernel_size=1, stride=1, padding=0, bias=False),
             nn.BatchNorm2d(1024),
             nn.ReLU6(inplace=True)
         )

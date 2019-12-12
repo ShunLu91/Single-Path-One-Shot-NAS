@@ -14,10 +14,8 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 def get_args():
     parser = argparse.ArgumentParser("Single_Path_One_Shot")
     parser.add_argument('--search_name', type=str, default='single_path', help='search model number')
-    parser.add_argument('--train_dir', type=str, default='/home/lushun/Documents/Dataset/ImageNet/train',
+    parser.add_argument('--data_dir', type=str, default='/home/work/dataset/cifar',
                         help='path to training dataset')
-    parser.add_argument('--val_dir', type=str, default='/home/lushun/Documents/Dataset/ImageNet/val',
-                        help='path to validation dataset')
     parser.add_argument('--train_batch', type=int, default=128, help='batch size')
     parser.add_argument('--val_batch', type=int, default=2048, help='batch size')
     parser.add_argument('--epochs', type=int, default=1000, help='batch size')
@@ -36,14 +34,14 @@ def main():
     transform = transforms.Compose(
         [transforms.ToTensor(),
          transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))])
-    trainset = torchvision.datasets.CIFAR10(root='./data', train=True,
+    trainset = torchvision.datasets.CIFAR10(root=args.data_dir, train=True,
                                             download=True, transform=transform)
     train_loader = torch.utils.data.DataLoader(trainset, batch_size=args.train_batch,
-                                              shuffle=True, num_workers=0)
-    valset = torchvision.datasets.CIFAR10(root='./data', train=False,
+                                              shuffle=True, pin_memory=True, num_workers=4)
+    valset = torchvision.datasets.CIFAR10(root=args.data_dir, train=False,
                                            download=True, transform=transform)
     val_loader = torch.utils.data.DataLoader(valset, batch_size=args.val_batch,
-                                             shuffle=False, num_workers=0)
+                                             shuffle=False, pin_memory=True, num_workers=4)
 
     model = Network(classes=10, gap_size=1)
     criterion = nn.CrossEntropyLoss()
