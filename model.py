@@ -52,7 +52,6 @@ class Network(nn.Module):
         )
         self.gap = nn.AvgPool2d(kernel_size=self.gap_size, stride=1, padding=0)
         self.fc = nn.Linear(last_channel, self.classes, bias=False)
-        self.softmax = nn.Softmax()
 
     def forward(self, x, random=np.random.randint(4, size=20)):
         x = self.stem(x)
