@@ -7,21 +7,19 @@ import utils
 from model import Network
 from torchsummary import summary
 from tqdm import tqdm
-import os
 
 
 def get_args():
     parser = argparse.ArgumentParser("Single_Path_One_Shot")
     parser.add_argument('--exp_name', type=str, default='spos_cifar', required=True, help='experiment name')
-    parser.add_argument('--data_dir', type=str, default='/home/work/dataset/cifar',
-                        help='path to training dataset')
+    parser.add_argument('--data_dir', type=str, default='/home/work/dataset/cifar', help='path to the dataset')
     parser.add_argument('--batch_size', type=int, default=96, help='batch size')
     parser.add_argument('--epochs', type=int, default=600, help='batch size')
-    parser.add_argument('--learning_rate', type=float, default=0.1, help='initial learning rate')
+    parser.add_argument('--learning_rate', type=float, default=0.025, help='initial learning rate')
     parser.add_argument('--momentum', type=float, default=0.9, help='momentum')
     parser.add_argument('--weight-decay', type=float, default=4e-5, help='weight decay')
-    parser.add_argument('--train_interval', type=int, default=1000, help='print frequency')
-    parser.add_argument('--val_interval', type=int, default=5, help='save frequency')
+    parser.add_argument('--train_interval', type=int, default=1000, help='print train loss frequency')
+    parser.add_argument('--val_interval', type=int, default=5, help='validate and save frequency')
     args = parser.parse_args()
     return args
 
