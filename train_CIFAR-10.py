@@ -70,11 +70,11 @@ def main():
 
 def train(args, epoch, train_data, device, model, criterion, optimizer):
     _loss = 0.0
-    for step, (inputs, labels) in enumerate(tqdm(train_data)):
-        inputs, labels = inputs.to(device), labels.to(device)
+    for step, (inputs, targets) in enumerate(tqdm(train_data)):
+        inputs, targets = inputs.to(device), targets.to(device)
         optimizer.zero_grad()
         outputs = model(inputs)
-        loss = criterion(outputs, labels)
+        loss = criterion(outputs, targets)
         loss.backward()
         optimizer.step()
         _loss += loss.item()
@@ -89,19 +89,14 @@ def validate(args, epoch, val_data, device, model):
     with torch.no_grad():
         for step, (inputs, targets) in enumerate(tqdm(val_data)):
             inputs = inputs.to(device)
-            labels = targets.to(device)
+            targets = targets.to(device)
             outputs = model(inputs)
-            prec1, prec5 = utils.accuracy(outputs, labels, topk=(1, 5))
+            prec1, prec5 = utils.accuracy(outputs, targets, topk=(1, 5))
             n = inputs.size(0)
             top1.update(prec1.item(), n)
             top5.update(prec5.item() , n)
         print('[Val_Accuracy] top1:%.5f%%, top5:%.5f%% ' % (top1.avg, top5.avg))
         utils.save_checkpoint({'state_dict': model.state_dict(), }, epoch+1, tag=args.search_name)
-#     # save model
-#     if (epoch+1) % args.val_interval == 0:
-#         save_dir = './snapshots/epoch_' + str(epoch+1) + '_acc_' + str('%.5f' % top1) + '-weights.pt'
-#         torch.save(model.state_dict(), save_dir)
-#         print('Successfully save the model.')
 
 
 if __name__ == '__main__':
