@@ -42,7 +42,7 @@ def save_checkpoint(state, iters, tag=''):
 
 
 def _data_transforms_cifar10(args):
-    """copy from darts
+    """from darts
     https://github.com/quark0/darts/blob/master/cnn/utils.py
     """
 

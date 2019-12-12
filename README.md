@@ -1,11 +1,16 @@
 # Single-Path-One-Shot-NAS
-This repo provides a Pytorch-based implementation of SPOS([Single Path One-Shot Neural Architecture Search with Uniform Sampling](https://arxiv.org/abs/1904.00420))  by Zichao Guo, and et. al.
+This repo provides a Pytorch-based implementation of SPOS([Single Path One-Shot Neural Architecture Search with Uniform 
+Sampling](https://arxiv.org/abs/1904.00420))  by Zichao Guo, and et. al.
 ![SPOS](https://github.com/ShunLu91/Single-Path-One-Shot-NAS/blob/master/img/SPOS.jpg)
-However, this repo only contains 'Block Search' and it's very time consuming to train this network on ImageNet so I haven't got the final result yet. I will update the repo soon and greatly thanks to Zichao Guo for his advice on some details.      
-Yet, there are still some differences with the [official version](https://github.com/megvii-model/SinglePathOneShot) such as data preprocessing and some hyper parameters.        
-                
-## Progress
-The problem that the loss doesn't decrease has been solved and it's easy to train on CIFAR-10 by only a single GPU.I am trying to make it to train on multi-GPUs on ImageNet.
+
+This repo only contains 'Block Search' for reference. It's very time consuming to train this network on ImageNet, which
+makes it impossible for me to finish the experiment under existing resources.As a result, this repo mainly focuses on 
+CIFAR-10 and greatly thanks to Zichao Guo for his advice on some details.
+Yet, there are still some differences with the [official version](https://github.com/megvii-model/SinglePathOneShot) 
+such as data preprocessing and some hyper parameters.
+
+As for the model search, in my opinion, you can refer to the official version for the Evolutionary Algorithm and also 
+you can randomly search 1000 models to find the best for test.
 
 ## Environments    
 ```
@@ -13,18 +18,18 @@ Python == 3.6.8, Pytorch == 1.1.0, CUDA == 9.0.176, cuDNN == 7.3.0, GPU == Singl
 ```
 
 ## Dataset   
-SPOS directly can train on ImageNet.ImageNet needs to be manually downloaded and [here](https://github.com/pytorch/examples/tree/master/imagenet) are some instructions.   
+SPOS can directly train on the ImageNet.ImageNet needs to be manually downloaded and 
+[here](https://github.com/pytorch/examples/tree/master/imagenet) are some instructions.CIFAR-10 can be downloaded 
+automatically with this code.  
          
 ## Usage
 ```
-python train.py --train_dir YOUR_TRAINDATASET_PATH --val_dir YOUR_VALDATASET_PATH
+python cifar_train.py exp_name spso_cifar
 ```
 
 ## To Do
 - [x] Block Search
-- [x] Train on CIFAR-10
-- [ ] Channel Search
-- [ ] Evolutionary Algorithm
+- [x] Train and Evaluate on CIFAR-10
 
 ## Reference
 [1]: [Differentiable architecture search for convolutional and recurrent networks](https://github.com/quark0/darts)
