@@ -1,5 +1,5 @@
 import torch.nn as nn
-from choice_block import Choice_Block, Choice_Block_x
+from block import Choice_Block, Choice_Block_x
 import numpy as np
 
 
