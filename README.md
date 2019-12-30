@@ -10,7 +10,7 @@ CIFAR-10 and greatly thanks to Zichao Guo for his advice on some details.
 Yet, there are still some differences with the [official version](https://github.com/megvii-model/SinglePathOneShot) 
 such as data preprocessing and some hyper parameters.
 
-I have done supernet training in the CIFAR-10 dataset and randomly sampled 1K models to validate. The model accuracy distribution is as below:
+I have done supernet training in the CIFAR-10 dataset and randomly sampled 1K models to validate. The model checkpoint and  accuracy distribution are as below:
 
 | Supernet | Random_Search |
 | --- | --- |
