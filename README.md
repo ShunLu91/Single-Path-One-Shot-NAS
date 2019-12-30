@@ -12,7 +12,9 @@ such as data preprocessing and some hyper parameters.
 
 I have done supernet training in the CIFAR-10 dataset and randomly sampled 1K models to validate. The model accuracy distribution is as below:
 
-![cifar_1K_search](https://github.com/ShunLu91/Single-Path-One-Shot-NAS/blob/master/img/cifar_1K_search.png)
+| Supernet | Random_Search |
+| --- | --- |
+| cifar_600epochs | ![cifar_1K_search](https://github.com/ShunLu91/Single-Path-One-Shot-NAS/blob/master/img/cifar_1K_search.png) |
 
 ## Environments    
 ```
