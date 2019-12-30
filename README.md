@@ -8,7 +8,6 @@ makes it impossible for me to finish the experiment under existing resources. As
 CIFAR-10 and greatly thanks to Zichao Guo for his advice on some details.
 Yet, there are still some differences with the [official version](https://github.com/megvii-model/SinglePathOneShot) 
 such as data preprocessing and some hyper parameters.
-
 I have done supernet training in the CIFAR-10 dataset and randomly sampled 1K models to validate. The model accuracy distribution is as below:
 
 ![cifar_1K_search](https://github.com/ShunLu91/Single-Path-One-Shot-NAS/blob/master/img/cifar_1K_search.png)
