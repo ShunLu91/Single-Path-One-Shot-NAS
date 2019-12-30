@@ -62,7 +62,7 @@ def main():
         scheduler.step()
         if (epoch + 1) % args.val_interval == 0:
             validate(args, epoch, val_loader, device, model, criterion, super=True)
-            utils.save_checkpoint({'state_dict': model.state_dict(), }, epoch + 1, tag=args.exp_name)
+            utils.save_checkpoint({'state_dict': model.state_dict(), }, epoch + 1, tag=args.exp_name + '_super')
     utils.time_record(start)
 
 

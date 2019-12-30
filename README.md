@@ -14,7 +14,7 @@ I have done supernet training in the CIFAR-10 dataset and randomly sampled 1K mo
 
 | Supernet | Random_Search |
 | --- | --- |
-| cifar_600epochs | ![cifar_1K_search](https://github.com/ShunLu91/Single-Path-One-Shot-NAS/blob/master/img/cifar_1K_search.png) |
+| [cifar_super](https://drive.google.com/open?id=1X-PcpQ_oIjhuYOF-MIRnM4wZ7TCdZIf8) | ![cifar_1K_search](https://github.com/ShunLu91/Single-Path-One-Shot-NAS/blob/master/img/cifar_1K_search.png) |
 
 ## Environments    
 ```
