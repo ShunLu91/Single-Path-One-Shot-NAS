@@ -29,167 +29,107 @@ def shuffle_channels(x, groups=2):
 
 
 class Choice_Block(nn.Module):
-    def __init__(self, in_channels, mid_channels, out_channels, k_size, stride):
+    def __init__(self, in_channels, out_channels, kernel, stride, supernet=True):
         super(Choice_Block, self).__init__()
-        padding = k_size // 2
-        self.padding = padding
-        self.in_channels = in_channels
-        self.mid_channels = mid_channels
-        self.out_channels = out_channels
-        self.k_size = k_size
+        padding = kernel // 2
+        if supernet:
+            self.affine = False
+        else:
+            self.affine = True
         self.stride = stride
+        self.in_channels = in_channels
+        self.mid_channels = out_channels // 2
+        self.out_channels = out_channels - in_channels
 
-        # conv_1x1
-        self.conv1 = nn.Conv2d(in_channels, mid_channels, kernel_size=1, stride=1, padding=0, bias=False)
-        self.bn1 = nn.BatchNorm2d(mid_channels)
-        self.relu1 = nn.ReLU(inplace=True)
-        # depthwise
-        self.DW_conv1 = nn.Conv2d(mid_channels, mid_channels, kernel_size=k_size,
-                                  stride=stride, padding=padding, groups=mid_channels, bias=False)
-        self.bn2 = nn.BatchNorm2d(mid_channels)
-        # pointwise
-        self.conv2 = nn.Conv2d(mid_channels, out_channels, kernel_size=1, stride=1, padding=0, bias=False)
-        self.bn3 = nn.BatchNorm2d(out_channels)
-        self.relu2 = nn.ReLU(inplace=True)
-
+        self.cb_main = nn.Sequential(
+            # pw
+            nn.Conv2d(self.in_channels, self.mid_channels, kernel_size=1, stride=1, padding=0, bias=False),
+            nn.BatchNorm2d(self.mid_channels, affine=self.affine),
+            nn.ReLU(inplace=True),
+            # dw
+            nn.Conv2d(self.mid_channels, self.mid_channels, kernel_size=kernel, stride=stride, padding=padding,
+                      bias=False, groups=self.mid_channels),
+            nn.BatchNorm2d(self.mid_channels, affine=self.affine),
+            # pw_linear
+            nn.Conv2d(self.mid_channels, self.out_channels, kernel_size=1, stride=1, padding=0, bias=False),
+            nn.BatchNorm2d(self.out_channels, affine=self.affine),
+            nn.ReLU(inplace=True)
+        )
         if stride == 2:
-            # depthwise
-            self.DW_conv2 = nn.Conv2d(in_channels, in_channels, kernel_size=k_size,
-                                      stride=2, padding=padding, groups=in_channels, bias=False)
-            self.bn4 = nn.BatchNorm2d(in_channels)
-            # pointwise
-            self.conv3 = nn.Conv2d(in_channels, out_channels, kernel_size=1, stride=1, padding=0, bias=False)
-            self.bn5 = nn.BatchNorm2d(out_channels)
-            self.relu3 = nn.ReLU(inplace=True)
-
-        # for p in self.parameters():
-        #     print(p)
-        #     p.requires_grad = False
-    def gradient(self, flag):
-        for p in self.parameters():
-            print(p)
-            p.requires_grad = flag
+            self.cb_proj = nn.Sequential(
+                # dw
+                nn.Conv2d(self.in_channels, self.in_channels, kernel_size=kernel, stride=2, padding=padding,
+                          bias=False, groups=self.in_channels),
+                nn.BatchNorm2d(self.in_channels, affine=self.affine),
+                # pw
+                nn.Conv2d(self.in_channels, self.in_channels, kernel_size=1, stride=1, padding=0, bias=False),
+                nn.BatchNorm2d(self.in_channels, affine=self.affine),
+                nn.ReLU(inplace=True)
+            )
 
     def forward(self, x):
-        # self.stride == 1
         if self.stride == 1:
             x1, x2 = channel_split(x, self.in_channels)
-        # self.stride == 2
+            y = torch.cat((self.cb_main(x1), x2), 1)
         else:
-            # depthwise
-            x1 = self.DW_conv2(x)
-            x1 = self.bn4(x1)
-            # pointwise
-            x1 = self.conv3(x1)
-            x1 = self.bn5(x1)
-            x1 = self.relu3(x1)
-            x2 = x
-        # conv_1x1
-        x2 = self.conv1(x2)
-        x2 = self.bn1(x2)
-        x2 = self.relu1(x2)
-        # depthwise
-        x2 = self.DW_conv1(x2)
-        x2 = self.bn2(x2)
-        # pointwise
-        x2 = self.conv2(x2)
-        x2 = self.bn3(x2)
-        x2 = self.relu2(x2)
-        # channel_shuffle
-        x3 = torch.cat((x1, x2), 1)
-        x3 = shuffle_channels(x3)
-
-        return x3
+            y = torch.cat((self.cb_main(x), self.cb_proj(x)), 1)
+        return y
 
 
 class Choice_Block_x(nn.Module):
-    def __init__(self, in_channels, mid_channels, out_channels, stride):
+    def __init__(self, in_channels, out_channels, stride, supernet=True):
         super(Choice_Block_x, self).__init__()
-        self.in_channels = in_channels
-        self.mid_channels = mid_channels
-        self.out_channels = out_channels
+        if supernet:
+            self.affine = False
+        else:
+            self.affine = True
         self.stride = stride
+        self.in_channels = in_channels
+        self.mid_channels = out_channels // 2
+        self.out_channels = out_channels - in_channels
 
-        # depthwise
-        self.DW_conv1 = nn.Conv2d(in_channels, in_channels, kernel_size=3,
-                                  stride=stride, padding=1, groups=in_channels, bias=False)
-        self.bn1 = nn.BatchNorm2d(in_channels)
-        # pointwise
-        self.conv1 = nn.Conv2d(in_channels, mid_channels, kernel_size=1, stride=1, padding=0, bias=False)
-        self.bn2 = nn.BatchNorm2d(mid_channels)
-        self.relu1 = nn.ReLU(inplace=True)
-        # depthwise
-        self.DW_conv2 = nn.Conv2d(mid_channels, mid_channels, kernel_size=3,
-                                  stride=1, padding=1, groups=mid_channels, bias=False)
-        self.bn3 = nn.BatchNorm2d(mid_channels)
-        # pointwise
-        self.conv2 = nn.Conv2d(mid_channels, mid_channels, kernel_size=1, stride=1, padding=0, bias=False)
-        self.bn4 = nn.BatchNorm2d(mid_channels)
-        self.relu2 = nn.ReLU(inplace=True)
-        # depthwise
-        self.DW_conv3 = nn.Conv2d(mid_channels, mid_channels, kernel_size=3,
-                                  stride=1, padding=1, groups=mid_channels, bias=False)
-        self.bn5 = nn.BatchNorm2d(mid_channels)
-        # pointwise
-        self.conv3 = nn.Conv2d(mid_channels, out_channels, kernel_size=1, stride=1, padding=0, bias=False)
-        self.bn6 = nn.BatchNorm2d(out_channels)
-        self.relu3 = nn.ReLU(inplace=True)
-
+        self.cb_main = nn.Sequential(
+            # dw
+            nn.Conv2d(self.in_channels, self.in_channels, kernel_size=3, stride=stride,
+                      padding=1, bias=False, groups=self.in_channels),
+            nn.BatchNorm2d(self.in_channels, affine=self.affine),
+            # pw
+            nn.Conv2d(self.in_channels, self.mid_channels, kernel_size=1, stride=1, padding=0, bias=False),
+            nn.BatchNorm2d(self.mid_channels, affine=self.affine),
+            nn.ReLU(inplace=True),
+            # dw
+            nn.Conv2d(self.mid_channels, self.mid_channels, kernel_size=3, stride=1,
+                      padding=1, bias=False, groups=self.mid_channels),
+            nn.BatchNorm2d(self.mid_channels, affine=self.affine),
+            # pw
+            nn.Conv2d(self.mid_channels, self.mid_channels, kernel_size=1, stride=1, padding=0, bias=False),
+            nn.BatchNorm2d(self.mid_channels, affine=self.affine),
+            nn.ReLU(inplace=True),
+            # dw
+            nn.Conv2d(self.mid_channels, self.mid_channels, kernel_size=3, stride=1,
+                      padding=1, bias=False, groups=self.mid_channels),
+            nn.BatchNorm2d(self.mid_channels, affine=self.affine),
+            # pw
+            nn.Conv2d(self.mid_channels, self.out_channels, kernel_size=1, stride=1, padding=0, bias=False),
+            nn.BatchNorm2d(self.out_channels, affine=self.affine),
+            nn.ReLU(inplace=True)
+        )
         if stride == 2:
-            # depthwise
-            self.DW_conv4 = nn.Conv2d(in_channels, in_channels, kernel_size=3,
-                                      stride=2, padding=1, groups=in_channels, bias=False)
-            self.bn7 = nn.BatchNorm2d(in_channels)
-            # pointwise
-            self.conv4 = nn.Conv2d(in_channels, out_channels, kernel_size=1, stride=1, padding=0, bias=False)
-            self.bn8 = nn.BatchNorm2d(out_channels)
-            self.relu4 = nn.ReLU(inplace=True)
-
-    def gradient(self, flag):
-        for p in self.parameters():
-            print(p)
-            p.requires_grad = flag
+            self.cb_proj = nn.Sequential(
+                # dw
+                nn.Conv2d(self.in_channels, self.in_channels, kernel_size=3, stride=2,
+                          padding=1, groups=self.in_channels, bias=False),
+                nn.BatchNorm2d(self.in_channels, affine=self.affine),
+                # pw
+                nn.Conv2d(self.in_channels, self.in_channels, kernel_size=1, stride=1, padding=0, bias=False),
+                nn.BatchNorm2d(self.in_channels, affine=self.affine),
+                nn.ReLU(inplace=True)
+            )
 
     def forward(self, x):
-        # self.stride == 1
         if self.stride == 1:
             x1, x2 = channel_split(x, self.in_channels)
-        # self.stride == 2
+            y = torch.cat((self.cb_main(x1), x2), 1)
         else:
-            # depthwise
-            x1 = self.DW_conv4(x)
-            x1 = self.bn7(x1)
-            # pointwise
-            x1 = self.conv4(x1)
-            x1 = self.bn8(x1)
-            x1 = self.relu4(x1)
-            x2 = x
-        # depthwise
-        x2 = self.DW_conv1(x2)
-        x2 = self.bn1(x2)
-        # pointwise
-        x2 = self.conv1(x2)
-        x2 = self.bn2(x2)
-        x2 = self.relu1(x2)
-        # depthwise
-        x2 = self.DW_conv2(x2)
-        x2 = self.bn3(x2)
-        # pointwise
-        x2 = self.conv2(x2)
-        x2 = self.bn4(x2)
-        x2 = self.relu2(x2)
-        # depthwise
-        x2 = self.DW_conv3(x2)
-        x2 = self.bn5(x2)
-        # pointwise
-        x2 = self.conv3(x2)
-        x2 = self.bn6(x2)
-        x2 = self.relu3(x2)
-        # channel_shuffle
-        x3 = torch.cat((x1, x2), 1)
-        x3 = shuffle_channels(x3)
-
-        return x3
-
-
-
+            y = torch.cat((self.cb_main(x), self.cb_proj(x)), 1)
+        return y
