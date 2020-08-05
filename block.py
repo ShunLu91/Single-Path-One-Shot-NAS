@@ -2,30 +2,16 @@ import torch
 import torch.nn as nn
 
 
-def channel_split(x, split):
-    """split a tensor into two pieces along channel dimension
-    Args:
-        x: input tensor
-        split:(int) channel size for each pieces
+def channel_shuffle(x):
     """
-    assert x.size(1) == split * 2
-    return torch.split(x, split, dim=1)
-
-
-def shuffle_channels(x, groups=2):
-    """shuffle channels of a 4-D Tensor"""
-
-    batch_size, channels, height, width = x.size()
-    assert channels % groups == 0
-    channels_per_group = channels // groups
-    # split into groups
-    x = x.view(batch_size, groups, channels_per_group,
-               height, width)
-    # transpose 1, 2 axis
-    x = x.transpose(1, 2).contiguous()
-    # reshape into orignal
-    x = x.view(batch_size, channels, height, width)
-    return x
+        code from https://github.com/megvii-model/SinglePathOneShot/src/Search/blocks.py#L124
+    """
+    batchsize, num_channels, height, width = x.data.size()
+    assert (num_channels % 4 == 0)
+    x = x.reshape(batchsize * num_channels // 2, 2, height * width)
+    x = x.permute(1, 0, 2)
+    x = x.reshape(2, -1, num_channels // 2, height, width)
+    return x[0], x[1]
 
 
 class Choice_Block(nn.Module):
@@ -69,7 +55,7 @@ class Choice_Block(nn.Module):
 
     def forward(self, x):
         if self.stride == 1:
-            x1, x2 = channel_split(x, self.in_channels)
+            x1, x2 = channel_shuffle(x)
             y = torch.cat((self.cb_main(x1), x2), 1)
         else:
             y = torch.cat((self.cb_main(x), self.cb_proj(x)), 1)
@@ -128,7 +114,7 @@ class Choice_Block_x(nn.Module):
 
     def forward(self, x):
         if self.stride == 1:
-            x1, x2 = channel_split(x, self.in_channels)
+            x1, x2 = channel_shuffle(x)
             y = torch.cat((self.cb_main(x1), x2), 1)
         else:
             y = torch.cat((self.cb_main(x), self.cb_proj(x)), 1)
