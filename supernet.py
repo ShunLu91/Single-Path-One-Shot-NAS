@@ -58,10 +58,10 @@ def main():
     # train supernet
     start = time.time()
     for epoch in range(args.epochs):
-        train(args, epoch, train_loader, device, model, criterion, optimizer, scheduler, super=True)
+        train(args, epoch, train_loader, device, model, criterion, optimizer, scheduler, supernet=True)
         scheduler.step()
         if (epoch + 1) % args.val_interval == 0:
-            validate(args, epoch, val_loader, device, model, criterion, super=True)
+            validate(args, epoch, val_loader, device, model, criterion, supernet=True)
             utils.save_checkpoint({'state_dict': model.state_dict(), }, epoch + 1, tag=args.exp_name + '_super')
     utils.time_record(start)
 
