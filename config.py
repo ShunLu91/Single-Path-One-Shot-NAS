@@ -5,7 +5,7 @@ def get_args():
     parser = argparse.ArgumentParser("Single_Path_One_Shot")
     parser.add_argument('--exp_name', type=str, default='spos_cifar10', required=True, help='experiment name')
     parser.add_argument('--data_dir', type=str, default='/home/work/dataset/', help='path to the dataset')
-    parser.add_argument('--classes', type=int, default=1000, help='dataset classes')
+    parser.add_argument('--classes', type=int, default=10, help='dataset classes')
     parser.add_argument('--layers', type=int, default=20, help='batch size')
     parser.add_argument('--num_choices', type=int, default=4, help='number choices per layer')
     parser.add_argument('--batch_size', type=int, default=96, help='batch size')
