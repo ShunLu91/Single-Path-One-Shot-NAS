@@ -28,7 +28,7 @@ CIFAR-10 can be downloaded automatically with this code. ImageNet needs to be ma
          
 ## Usage
 ```
-python supernet.py exp_name spos_cifar
+python supernet.py --exp_name spos_cifar
 ```
 
 ## To Do
