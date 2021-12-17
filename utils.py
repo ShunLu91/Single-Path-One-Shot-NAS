@@ -1,12 +1,16 @@
+import logging
 import os
+import random
 import time
-import torch
-import numpy as np
+
 import matplotlib.pyplot as plt
+import numpy as np
+import torch
+import torch.backends.cudnn as cudnn
 import torchvision.transforms as transforms
 
 
-class AvgrageMeter(object):
+class AverageMeter(object):
 
     def __init__(self):
         self.reset()
@@ -32,7 +36,7 @@ def accuracy(output, label, topk=(1,)):
 
     res = []
     for k in topk:
-        correct_k = correct[:k].view(-1).float().sum(0)
+        correct_k = correct[:k].contiguous().view(-1).float().sum(0)
         res.append(correct_k.mul_(100.0 / batch_size))
     return res
 
@@ -119,10 +123,26 @@ def plot_hist(acc_list, min=0, max=101, interval=5, name='search'):
     plt.show()
 
 
+def set_seed(seed):
+    """
+        Fix all seeds
+    """
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    os.environ['PYTHONHASHSEED'] = str(seed)
+
+    cudnn.enabled = True
+    cudnn.benchmark = False
+    torch.cuda.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    torch.backends.cudnn.deterministic = True
+
+
 def time_record(start):
     end = time.time()
     duration = end - start
     hour = duration // 3600
     minute = (duration - hour * 3600) // 60
     second = duration - hour * 3600 - minute * 60
-    print('Elapsed time: hour: %d, minute: %d, second: %f' % (hour, minute, second))
+    logging.info('Elapsed time: %dh %dmin %ds' % (hour, minute, second))

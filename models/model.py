@@ -1,11 +1,8 @@
-import torch
-import utils
 import numpy as np
-# from apex import amp
-from tqdm import tqdm
+import numpy as np
 import torch.nn as nn
-from block import Choice_Block, Choice_Block_x
 
+from models.block import Choice_Block, Choice_Block_x
 
 channel = [16,
            64, 64, 64, 64,
@@ -176,55 +173,3 @@ class SinglePath_Network(nn.Module):
                 nn.init.normal_(m.weight, 0, 0.01)
                 if m.bias is not None:
                     nn.init.constant_(m.bias, 0)
-
-
-def train(args, epoch, train_data, device, model, criterion, optimizer, scheduler, supernet):
-    model.train()
-    train_loss = 0.0
-    top1 = utils.AvgrageMeter()
-    train_data = tqdm(train_data)
-    train_data.set_description('[%s%04d/%04d %s%f]' % ('Epoch:', epoch + 1, args.epochs, 'lr:', scheduler.get_lr()[0]))
-    for step, (inputs, targets) in enumerate(train_data):
-        inputs, targets = inputs.to(device), targets.to(device)
-        optimizer.zero_grad()
-        if supernet:
-            choice = utils.random_choice(args.num_choices, args.layers)
-            outputs = model(inputs, choice)
-        else:
-            outputs = model(inputs)
-        loss = criterion(outputs, targets)
-        # if args.dataset == 'cifar10':
-        loss.backward()
-        # elif args.dataset == 'imagenet':
-        #     with amp.scale_loss(loss, optimizer) as scaled_loss:
-        #         scaled_loss.backward()
-        optimizer.step()
-        prec1, prec5 = utils.accuracy(outputs, targets, topk=(1, 5))
-        n = inputs.size(0)
-        top1.update(prec1.item(), n)
-        train_loss += loss.item()
-        postfix = {'train_loss': '%.6f' % (train_loss / (step + 1)), 'train_acc': '%.6f' % top1.avg}
-        train_data.set_postfix(log=postfix)
-
-
-def validate(args, epoch, val_data, device, model, criterion, supernet, choice=None):
-    model.eval()
-    val_loss = 0.0
-    val_top1 = utils.AvgrageMeter()
-    with torch.no_grad():
-        for step, (inputs, targets) in enumerate(val_data):
-            inputs, targets = inputs.to(device), targets.to(device)
-            if supernet:
-                if choice == None:
-                    choice = utils.random_choice(args.num_choices, args.layers)
-                outputs = model(inputs, choice)
-            else:
-                outputs = model(inputs)
-            loss = criterion(outputs, targets)
-            val_loss += loss.item()
-            prec1, prec5 = utils.accuracy(outputs, targets, topk=(1, 5))
-            n = inputs.size(0)
-            val_top1.update(prec1.item(), n)
-        print('[Val_Accuracy epoch:%d] val_loss:%f, val_acc:%f'
-              % (epoch + 1, val_loss / (step + 1), val_top1.avg))
-        return val_top1.avg

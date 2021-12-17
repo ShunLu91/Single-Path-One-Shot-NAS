@@ -1,49 +1,52 @@
 # Single-Path-One-Shot-NAS
+![license](https://img.shields.io/badge/License-MIT-brightgreen)
+![python](https://img.shields.io/badge/Python-3.7-blue)
+![pytorch](https://img.shields.io/badge/PyTorch-1.7-orange)
+
 This repo provides a Pytorch-based implementation of SPOS([Single Path One-Shot Neural Architecture Search with Uniform 
 Sampling](https://arxiv.org/abs/1904.00420))  by Zichao Guo, and et. al.
-![SPOS](https://github.com/ShunLu91/Single-Path-One-Shot-NAS/blob/master/img/SPOS.jpg)
+![SPOS](./img/SPOS.jpg)
 
-This repo only contains 'Block Search' for reference. It's very time consuming to train this network on ImageNet, which
-makes it impossible for me to finish the experiment under existing resources. As a result, this repo mainly focuses on 
-CIFAR-10 and greatly thanks to Zichao Guo for his advice on some details.
+It only contains 'Block Search' for reference. It's very time consuming to train this supernet on ImageNet, which
+makes it impossible for me to finish the experiment under limited resources. Therefore, I mainly focused on 
+CIFAR-10. 
 
-Yet, there are still some differences with the [official version](https://github.com/megvii-model/SinglePathOneShot) 
-such as data preprocessing and some hyper parameters.
-
-I have done supernet training on the CIFAR-10 dataset and randomly sampled 1K models to validate. The model checkpoint and  accuracy distribution are as below:
-
-| Supernet | Random_Search |
-| --- | --- |
-| [cifar_super](https://drive.google.com/open?id=1X-PcpQ_oIjhuYOF-MIRnM4wZ7TCdZIf8) | ![cifar_1K_search](https://github.com/ShunLu91/Single-Path-One-Shot-NAS/blob/master/img/cifar_1K_search.png) |
+Great thanks to Zichao Guo for his advice on some details. Nevertheless, some differences may still exists when compared with the [official version](https://github.com/megvii-model/SinglePathOneShot) 
+such as data preprocessing and some other hyper parameters.
 
 ## Environments    
 ```
-Python == 3.6.8, Pytorch == 1.1.0, CUDA == 9.0.176, cuDNN == 7.3.0, GPU == Single GTX 1080Ti 
+Python==3.7.10, Pytorch==1.7.1, CUDA==10.2, cuDNN==7.6.5 
 ```
 
 ## Dataset   
-SPOS can directly train on CIFAR-10 and ImageNet.
-CIFAR-10 can be downloaded automatically with this code. ImageNet needs to be manually downloaded and 
+CIFAR-10 can be automatically downloaded using this code. ImageNet needs to be manually downloaded and 
 [here](https://github.com/pytorch/examples/tree/master/imagenet) are some instructions. 
          
 ## Usage
+1. Train a supernet on the CIFAR-10 dataset by simply running:
 ```
-python supernet.py --exp_name spos_cifar
+bash scripts/train_supernet.sh
 ```
+* My pretrained supernet can be downloaded from [this link](https://drive.google.com/file/d/1hq3uaCqHnIL_foD-aeieqD_HUxj1xPME/view?usp=sharing).
 
-## To Do
-- [x] Block Search
-- [x] Train and Evaluate on CIFAR-10
+2. For convenience, I conduct random search by enumerating 1,000 paths to select the best:
+```
+bash scripts/random_search.sh
+```
+* During my search, the best path is `[1, 0, 3, 1, 3, 0, 3, 0, 0, 3, 3, 0, 1, 0, 1, 2, 2, 1, 1, 3]`.
+* In the original SPOS paper, they adopted the evolutionary algorithm to search architectures. Please refer to their official repo for more details.
+
+3. Use the best searched path to modify the "choice" defined in Line 116 of retrain_best_choice.py and re-train the corresponding architecture of this path:
+```
+bash scripts/retrain_best_choice.py
+```
+* After retraining, the best test accuracy of this searched architecture is `93.31`. The checkpoint is provided [here](https://drive.google.com/file/d/1Ld7wBaZd7ikeOolXdncLgk0lIw2WHo0d/view?usp=sharing).
+
+
+4. As I fix all seeds in the above procedures, same results should be achieved. You can check my logs in the `logdir`. 
 
 ## Reference
-[1]: [Differentiable architecture search for convolutional and recurrent networks](https://github.com/quark0/darts)
-             
-## Citation
-```
-@article{guo2019single,
-        title={Single path one-shot neural architecture search with uniform sampling},
-        author={Guo, Zichao and Zhang, Xiangyu and Mu, Haoyuan and Heng, Wen and Liu, Zechun and Wei, Yichen and Sun, Jian},
-        journal={arXiv preprint arXiv:1904.00420},
-        year={2019}
-}
-```
+[1] [Single Path One-Shot Neural Architecture Search with Uniform Sampling](https://github.com/megvii-model/SinglePathOneShot)
+
+[2] [Differentiable architecture search for convolutional and recurrent networks](https://github.com/quark0/darts)
